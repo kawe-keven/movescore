@@ -35,6 +35,12 @@ class _AccessibleButtonState extends State<AccessibleButton> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
+    // Medir a tela do usuário para ajuste responsivo e evitar overflowing
+    final screenSize = MediaQuery.of(context).size;
+    final isSmallScreen = screenSize.width < 360;
+    final double buttonHeight = isSmallScreen ? 52.0 : 60.0;
+    final double fontSize = isSmallScreen ? 16.0 : 20.0;
+
     return GestureDetector(
       onTapDown: _onTapDown,
       onTapUp: _onTapUp,
@@ -44,7 +50,7 @@ class _AccessibleButtonState extends State<AccessibleButton> with SingleTickerPr
         duration: const Duration(milliseconds: 100), // Limiar de Doherty (resposta rápida)
         child: SizedBox(
           width: double.infinity,
-          height: 60, // Alvo grande (Lei de Fitts)
+          height: buttonHeight, // Altura adaptada à tela (Lei de Fitts)
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: widget.backgroundColor ?? const Color(0xFFFF6F00),
@@ -63,12 +69,16 @@ class _AccessibleButtonState extends State<AccessibleButton> with SingleTickerPr
                       strokeWidth: 3,
                     ),
                   )
-                : Text(
-                    widget.label,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                : FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      widget.label,
+                      style: TextStyle(
+                        fontSize: fontSize,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                      maxLines: 1,
                     ),
                   ),
           ),

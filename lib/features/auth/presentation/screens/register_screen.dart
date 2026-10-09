@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/accessible_button.dart';
 import '../widgets/accessible_text_field.dart';
+import '../../../home/presentation/screens/home_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -29,27 +30,44 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  void _handleRegister() {
-    if (_formKey.currentState!.validate()) {
-      setState(() => _isLoading = true);
+  // 1. try/finally: garante reset de _isLoading.
+  // 2. if (mounted): evita exceção de ciclo de vida após await.
+  // 3. Gerência de Estado: botões bloqueados durante carregamento.
+  Future<void> _handleRegister() async {
+    if (!_formKey.currentState!.validate()) return;
 
+    setState(() => _isLoading = true);
+    try {
       // Simulando registro com o backend Spring Boot (Limiar de Doherty)
-      Future.delayed(const Duration(seconds: 1), () {
-        if (mounted) {
-          setState(() => _isLoading = false);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text(
-                'Cadastro realizado com sucesso! Bem-vindo ao MoveScore.',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              backgroundColor: Theme.of(context).colorScheme.secondary,
-              duration: const Duration(seconds: 3),
-            ),
-          );
-          Navigator.pop(context); // Retorna para a tela de login
-        }
-      });
+      await Future.delayed(const Duration(seconds: 1));
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(
+            'Cadastro realizado com sucesso! Bem-vindo ao MoveScore.',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          backgroundColor: Theme.of(context).colorScheme.secondary,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao realizar cadastro: $e'),
+          backgroundColor: Colors.red[700],
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -64,7 +82,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_rounded, size: 32, color: secondaryColor),
-          onPressed: () => Navigator.pop(context),
+          onPressed: _isLoading ? null : () => Navigator.pop(context),
           tooltip: 'Voltar',
         ),
         title: Text(

@@ -24,6 +24,12 @@ class _SocialLoginButtonState extends State<SocialLoginButton> {
 
   @override
   Widget build(BuildContext context) {
+    // Medir a tela do usuário para ajuste responsivo e evitar overflowing
+    final screenSize = MediaQuery.of(context).size;
+    final isSmallScreen = screenSize.width < 360;
+    final double buttonHeight = isSmallScreen ? 52.0 : 60.0;
+    final double fontSize = isSmallScreen ? 15.0 : 18.0;
+
     return GestureDetector(
       onTapDown: (_) => setState(() => _scale = 0.97),
       onTapUp: (_) => setState(() => _scale = 1.0),
@@ -33,7 +39,7 @@ class _SocialLoginButtonState extends State<SocialLoginButton> {
         duration: const Duration(milliseconds: 100),
         child: SizedBox(
           width: double.infinity,
-          height: 60,
+          height: buttonHeight,
           child: OutlinedButton(
             style: OutlinedButton.styleFrom(
               backgroundColor: widget.backgroundColor,
@@ -46,19 +52,26 @@ class _SocialLoginButtonState extends State<SocialLoginButton> {
             onPressed: widget.onPressed,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 SvgPicture.asset(
                   'assets/images/google_icon.svg',
-                  width: 28,
-                  height: 28,
+                  width: isSmallScreen ? 22 : 28,
+                  height: isSmallScreen ? 22 : 28,
                 ),
-                const SizedBox(width: 16),
-                Text(
-                  widget.label,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: widget.textColor,
+                const SizedBox(width: 12),
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      widget.label,
+                      style: TextStyle(
+                        fontSize: fontSize,
+                        fontWeight: FontWeight.bold,
+                        color: widget.textColor,
+                      ),
+                      maxLines: 1,
+                    ),
                   ),
                 ),
               ],
