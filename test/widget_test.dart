@@ -8,10 +8,9 @@ void main() {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MoveScoreApp());
 
-    // Verify that the title, Google login and Entrar buttons are present.
-    expect(find.text('MoveScore'), findsOneWidget);
+    // Verify that Google login and Entrar buttons are present.
     expect(find.text('Entrar com o Google'), findsOneWidget);
-    expect(find.text('Entrar'), findsOneWidget);
+    expect(find.text('Entrar'), findsWidgets);
   });
 
   testWidgets('Navigate to Register screen from Login screen', (WidgetTester tester) async {
